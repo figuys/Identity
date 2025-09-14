@@ -1,5 +1,6 @@
 from glob import glob
 import os
+import shutil
 
 srcLetr = 'D'
 srcRepo = 'GitHub'
@@ -122,6 +123,14 @@ for srcFile in srcFiles:
 				skipFile.close()
 				skipFile = None
 
+				src = srcFile.replace('.txt', f'_{partTick:02}.csv').replace('src\\00', 'out\\00')
+				dst = srcFile.replace('.txt', f'_{partTick:02}.csv').replace('src\\00', 'src\\01')
+
+				shutil.copy(src, dst)
+
 				partTick += 1
 				chunkTick = 1
+
+				print_status()
+
 		print_status()
