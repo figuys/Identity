@@ -1,3 +1,7 @@
 *.csv filter=lfs diff=lfs merge=lfs -text
 *.parquet filter=lfs diff=lfs merge=lfs -text
+<<<<<<< HEAD
 src/01/Part*.txt filter=lfs diff=lfs merge=lfs -text
+=======
+*.txt filter=lfs diff=lfs merge=lfs -text
+>>>>>>> ef25ce8 (Sep 14, 2025, 5:51 AM)
