@@ -210,6 +210,6 @@ __marimo__/
 github
 *.csv
 *.parquet
-src/00
+
 src/us
 .vs
