@@ -9,9 +9,8 @@ srcName = 'Identity'
 srcStep = f'{0:02}'
 srcNext = f'{int(srcStep + 1):02}'
 srcRoot = f'{srcLetr}:\\{srcRepo}\\{srcComp}\\{srcName}\\src'
-srcGlob = f'{srcRoot}\\{srcStep}\\Part*.txt'
+srcGlob = [f'{srcRoot}\\{srcStep}\\Part1.txt', f'{srcRoot}\\{srcStep}\\Part2.txt']
 srcFiles = glob(srcGlob)
-
 
 # Chunk variables
 chunkSize = 100_000_000
