@@ -12,7 +12,6 @@ srcRoot = f'{srcLetr}:\\{srcRepo}\\{srcComp}\\{srcName}\\src'
 srcGlob = f'{srcRoot}\\{srcStep}\\Part*.txt'
 srcFiles = glob(srcGlob)
 
-
 # Chunk variables
 chunkSize = 100_000_000
 
