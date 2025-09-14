@@ -211,8 +211,7 @@ __marimo__/
 github
 *.csv
 *.parquet
-#src/00/Part1.txt
-#src/00/Part2.txt
+
 src/us/_merge-files.ps1
 src/us/ak/anchorage-addresses-county.geojson
 src/us/ak/anchorage-addresses-county.geojson.meta
