@@ -6,10 +6,11 @@ srcLetr = 'D'
 srcRepo = 'GitHub'
 srcComp = 'fiGuys'
 srcName = 'Identity'
-srcStep = f'{0:02}'
-srcNext = f'{int(srcStep + 1):02}'
+srcStep = 0
+srcStepStr = f'{srcStep:02}'
+srcNextStr = f'{(srcStep + 1):02}'
 srcRoot = f'{srcLetr}:\\{srcRepo}\\{srcComp}\\{srcName}\\src'
-srcGlob = [f'{srcRoot}\\{srcStep}\\Part1.txt', f'{srcRoot}\\{srcStep}\\Part2.txt']
+srcGlob = [f'{srcRoot}\\{srcStepStr}\\Part1.txt', f'{srcRoot}\\{srcStepStr}\\Part2.txt']
 srcFiles = glob(srcGlob)
 
 # Chunk variables
@@ -49,17 +50,17 @@ def print_status():
 
 
 for srcFile in srcFiles:
-	outFile = srcFile.replace(f'src\\{srcStep}', f'out\\{srcStep}')
+	outFile = srcFile.replace(f'src\\{srcStepStr}', f'out\\{srcStepStr}')
 	outRoot = os.path.split(outFile)[0]
 	if not os.path.exists(outRoot):
 		os.makedirs(outRoot, exist_ok=True)
 
-	errFile = srcFile.replace(f'src\\{srcStep}', f'err\\{srcStep}')
+	errFile = srcFile.replace(f'src\\{srcStepStr}', f'err\\{srcStepStr}')
 	errRoot = os.path.split(errFile)[0]
 	if not os.path.exists(errRoot):
 		os.makedirs(errRoot, exist_ok=True)
 
-	newFile = outFile.replace(f'out\\{srcStep}', f'src\\{srcNext}')
+	newFile = outFile.replace(f'out\\{srcStepStr}', f'src\\{srcNextStr}')
 	newRoot = os.path.split(newFile)[0]
 	if not os.path.exists(newRoot):
 		os.makedirs(newRoot, exist_ok=True)
