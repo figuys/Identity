@@ -1,2 +1,4 @@
 *.csv filter=lfs diff=lfs merge=lfs -text
 *.parquet filter=lfs diff=lfs merge=lfs -text
+Part1.txt filter=lfs diff=lfs merge=lfs -text
+Part2.txt filter=lfs diff=lfs merge=lfs -text
