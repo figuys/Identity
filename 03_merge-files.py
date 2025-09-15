@@ -2,9 +2,9 @@ import polars as pl
 from glob import glob
 import os
 
-srcGlobs = 'D:\\OneLake\\src\\03\\Part1_00*.parquet'
+srcGlobs = 'D:\\GitHub\\fiGuys\\Identity\\src\\03\\Part1_0*.parquet'
 srcFiles = glob(srcGlobs)
-outFile = 'D:\\OneLake\\out\\03\\Part1_00.parquet'
+outFile = 'D:\\GitHub\\fiGuys\\Identity\\out\\03\\Part1_0.parquet'
 
 try:
 	lf = pl.concat([pl.scan_parquet(f) for f in srcFiles])
@@ -14,9 +14,9 @@ except Exception as e:
 	print(f'Error combining Parquet files: {e}')
 
 
-srcGlobs = 'D:\\OneLake\\src\\03\\Part1_01*.parquet'
+srcGlobs = 'D:\\GitHub\\fiGuys\\Identity\\src\\03\\Part1_1*.parquet'
 srcFiles = glob(srcGlobs)
-outFile = 'D:\\OneLake\\out\\03\\Part1_01.parquet'
+outFile = 'D:\\GitHub\\fiGuys\\Identity\\out\\03\\Part1_1.parquet'
 
 try:
 	lf = pl.concat([pl.scan_parquet(f) for f in srcFiles])
@@ -26,9 +26,9 @@ except Exception as e:
 	print(f'Error combining Parquet files: {e}')
 
 
-srcGlobs = 'D:\\OneLake\\src\\03\\Part2_00*.parquet'
+srcGlobs = 'D:\\GitHub\\fiGuys\\Identity\\src\\03\\Part2_0*.parquet'
 srcFiles = glob(srcGlobs)
-outFile = 'D:\\OneLake\\out\\03\\Part2_00.parquet'
+outFile = 'D:\\GitHub\\fiGuys\\Identity\\out\\03\\Part2_0.parquet'
 
 try:
 	lf = pl.concat([pl.scan_parquet(f) for f in srcFiles])
