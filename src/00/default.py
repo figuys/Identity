@@ -1,4 +1,3 @@
-from glob import glob
 import os
 import shutil
 
@@ -10,8 +9,7 @@ srcStep = 0
 srcStepStr = f'{srcStep:02}'
 srcNextStr = f'{(srcStep + 1):02}'
 srcRoot = f'{srcLetr}:\\{srcRepo}\\{srcComp}\\{srcName}\\src'
-srcGlob = [f'{srcRoot}\\{srcStepStr}\\Part1.txt', f'{srcRoot}\\{srcStepStr}\\Part2.txt']
-srcFiles = glob(srcGlob)
+srcFiles = [f'{srcRoot}\\{srcStepStr}\\Part1.txt', f'{srcRoot}\\{srcStepStr}\\Part2.txt']
 
 # Chunk variables
 chunkSize = 100_000_000
@@ -49,21 +47,40 @@ def print_status():
 		print(f'Records read: {readTick:_}\tRecords keep: {keepTick:_}\tErrors found: {skipTick:_}')
 
 
-for srcFile in srcFiles:
-	outFile = srcFile.replace(f'src\\{srcStepStr}', f'out\\{srcStepStr}')
-	outRoot = os.path.split(outFile)[0]
-	if not os.path.exists(outRoot):
-		os.makedirs(outRoot, exist_ok=True)
-
+def adapt__srcFile_to_errFile(srcFile):
 	errFile = srcFile.replace(f'src\\{srcStepStr}', f'err\\{srcStepStr}')
 	errRoot = os.path.split(errFile)[0]
+
 	if not os.path.exists(errRoot):
 		os.makedirs(errRoot, exist_ok=True)
 
+	return [errFile, errRoot]
+
+
+def adapt__srcFile_to_outFile(srcFile):
+	outFile = srcFile.replace(f'src\\{srcStepStr}', f'out\\{srcStepStr}')
+	outRoot = os.path.split(outFile)[0]
+
+	if not os.path.exists(outRoot):
+		os.makedirs(outRoot, exist_ok=True)
+
+	return [outFile, outRoot]
+
+
+def adapt__outFile_to_newFile(outFile):
 	newFile = outFile.replace(f'out\\{srcStepStr}', f'src\\{srcNextStr}')
 	newRoot = os.path.split(newFile)[0]
+
 	if not os.path.exists(newRoot):
 		os.makedirs(newRoot, exist_ok=True)
+
+	return [newFile, newRoot]
+
+
+for srcFile in srcFiles:
+	outFile, outRoot = adapt__srcFile_to_outFile(srcFile)
+	errFile, errRoot = adapt__srcFile_to_errFile(srcFile)
+	newFile, newRoot = adapt__outFile_to_newFile(outFile)
 
 	# Tick variables
 	keepTick = 0
