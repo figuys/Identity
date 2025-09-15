@@ -1,20 +1,25 @@
+import shutil
 import polars as pl
 from glob import glob
 import os
-import shutil as sh
 
 srcLetr = 'D'
 srcRepo = 'GitHub'
 srcComp = 'fiGuys'
-srcName = 'Identity'
-srcStep = f'{1:02}'
-srcNext = f'{int(srcStep + 1):02}'
-srcRoot = f'{srcLetr}:\\{srcRepo}\\{srcComp}\\{srcName}\\src'
-srcGlobs = f'{srcRoot}\\{srcStep}\\Part*.csv'
-srcFiles = glob(srcGlobs)
+srcPart = 'Identity'
+srcStep = 1
+srcNext = srcStep + 1
+srcStepStr = f'{srcStep:02}'
+srcNextStr = f'{srcNext:02}'
+srcRoot = f'{srcLetr}:\\{srcRepo}\\{srcComp}\\{srcPart}\\src'
+srcPath = f'{srcRoot}\\{srcStepStr}'
+srcGlob = f'{srcPath}\\Part*.csv'
 
 
-def flow_dataStreams(srcFile, outFile, newFile):
+def flow_dataStreams(srcFile):
+	outFile = adapt__srcFile_to_outFile(srcFile)
+	newFile = adapt__outFile_to_newFile(outFile)
+
 	try:
 		print(f'Converting {srcFile} to parquet format.')
 		lf = pl.scan_csv(
@@ -29,14 +34,40 @@ def flow_dataStreams(srcFile, outFile, newFile):
 				os.remove(newFile)
 
 			print(f'Staging {newFile}')
-			sh.copy(outFile, newFile)
+			shutil.copy(outFile, newFile)
 
 	except Exception as e:
 		print(f'Error combining Parquet files: {e}')
 
 
-for srcFile in srcFiles:
-	outFile = srcFile.replace(f'src\\{srcStep}', f'out\\{srcStep}')
-	newFile = outFile.replace(f'out\\{srcStep}', f'src\\{srcNext}')
+def adapt__srcFile_to_srcRoot(srcFile):
+	srcRoot = os.path.split(srcFile)[0]
 
-	flow_dataStreams(srcFile, outFile, newFile)
+	if not os.path.exists(srcRoot):
+		os.makedirs(srcRoot, exist_ok=True)
+
+	return srcRoot
+
+
+def adapt__srcFile_to_errFile(srcFile):
+	return srcFile.replace(f'src\\{srcStepStr}', f'err\\{srcStepStr}')
+
+
+def adapt__errFile_to_errRoot(errFile):
+	return os.path.split(errFile)[0]
+
+
+def adapt__srcFile_to_outFile(srcFile):
+	return srcFile.replace(f'src\\{srcStepStr}', f'out\\{srcStepStr}').replace('.csv', '.parquet')
+
+
+def adapt__outFile_to_outRoot(outFile):
+	return os.path.split(outFile)[0]
+
+
+def adapt__outFile_to_newFile(outFile):
+	return outFile.replace(f'out\\{srcStepStr}', f'src\\{srcNextStr}')
+
+
+for srcFile in glob(srcGlob):
+	flow_dataStreams(srcFile)
