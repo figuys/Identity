@@ -108,7 +108,7 @@ def castTo_Date(lf: LazyFrame, name: String, required: Boolean) -> LazyFrame:
 	return lf
 
 
-for srcFile in glob('D:\\OneLake\\src\\02\\Part*.parquet'):
+for srcFile in glob('D:\\GitHub\\fiGuys\\Identity\\src\\02\\Part*.parquet'):
 	outFile = srcFile.replace('src\\02', 'out\\02')
 	newFile = outFile.replace('out\\02', 'src\\03')
 
