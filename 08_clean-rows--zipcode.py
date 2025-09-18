@@ -77,7 +77,7 @@ def only_length(expr: Expr, *, length: int) -> Expr:
 	return pl.when(expr.str.len_chars() == length).then(expr).otherwise(None)
 
 
-for srcFile in glob('D:\\OneLake\\src\\08\\Parts.parquet'):
+for srcFile in glob('D:\\GitHub\\fiGuys\\Identity\\src\\08\\Parts.parquet'):
 	outFile = srcFile.replace('src\\08', 'out\\08')
 	newFile = outFile.replace('out\\08', 'src\\09')
 
