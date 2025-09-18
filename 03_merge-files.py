@@ -1,6 +1,5 @@
 import polars as pl
 from glob import glob
-import os
 
 srcGlobs = 'D:\\GitHub\\fiGuys\\Identity\\src\\03\\Part1_0*.parquet'
 srcFiles = glob(srcGlobs)

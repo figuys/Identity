@@ -1,10 +1,9 @@
 import polars as pl
 from glob import glob
-import os
 
-srcGlobs = 'D:\\OneLake\\src\\04\\Part1_0*.parquet'
+srcGlobs = 'D:\\GitHub\\fiGuys\\Identity\\src\\04\\Part1_*.parquet'
 srcFiles = glob(srcGlobs)
-outFile = 'D:\\OneLake\\out\\04\\Part1.parquet'
+outFile = 'D:\\GitHub\\fiGuys\\Identity\\out\\04\\Part1.parquet'
 
 try:
 	lf = pl.concat([pl.scan_parquet(f) for f in srcFiles])

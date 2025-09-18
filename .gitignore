@@ -1,9 +1,9 @@
 ## Identity Project Specific Ignore Rules
-src/*/Part*_*.csv
-out/*/Part*_*.csv
-err/*/Part*_*.csv
-src/*/Part*_*.parquet
-out/*/Part*_*.parquet
+src/*/Part*.csv
+out/*/Part*.csv
+err/*/Part*.csv
+src/*/Part*.parquet
+out/*/Part*.parquet
 src/00/*.txt
 
 ## === Visual Studio / .NET ===
