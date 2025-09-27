@@ -5,70 +5,7 @@ import polars as pl
 from polars import Expr
 from glob import glob
 
-sAbbr = sorted(
-	[
-		# 50 U.S. states
-		'AK',
-		'AL',
-		'AR',
-		'AZ',
-		'CA',
-		'CO',
-		'CT',
-		'DE',
-		'FL',
-		'GA',
-		'HI',
-		'IA',
-		'ID',
-		'IL',
-		'IN',
-		'KS',
-		'KY',
-		'LA',
-		'MA',
-		'MD',
-		'ME',
-		'MI',
-		'MN',
-		'MO',
-		'MS',
-		'MT',
-		'NC',
-		'ND',
-		'NE',
-		'NH',
-		'NJ',
-		'NM',
-		'NV',
-		'NY',
-		'OH',
-		'OK',
-		'OR',
-		'PA',
-		'RI',
-		'SC',
-		'SD',
-		'TN',
-		'TX',
-		'UT',
-		'VA',
-		'VT',
-		'WA',
-		'WI',
-		'WV',
-		'WY',
-		# Federal District
-		'DC',
-		# Military "states"
-		'AA',  # Armed Forces Americas (except Canada)
-		'AE',  # Armed Forces Europe, Middle East, Africa, Canada
-		'AP',  # Armed Forces Pacific
-	]
-)
 
-
-# Remove non-digit characters
 def only_digits(expr: Expr) -> Expr:
 	return pl.when(expr.is_not_null()).then(expr.str.extract(r'\d+', 0)).otherwise(None)
 
@@ -77,57 +14,69 @@ def only_length(expr: Expr, *, length: int) -> Expr:
 	return pl.when(expr.str.len_chars() == length).then(expr).otherwise(None)
 
 
-for srcFile in glob('D:\\GitHub\\fiGuys\\Identity\\src\\06\\Parts.parquet'):
-	outFile = srcFile.replace('src\\06', 'out\\06')
-	newFile = outFile.replace('out\\06', 'src\\07')
+for srcFile in glob(r'D:\GitHub\fiGuys\Identity\src\06\Parts.parquet'):
+	outFile = srcFile.replace(r'src\06', r'out\06a')
+	badFile = srcFile.replace(r'src\06', r'err\06a')
+	newFile = outFile.replace(r'out\06a', r'src\07a')
+
+	os.makedirs(os.path.dirname(outFile), exist_ok=True)
+	os.makedirs(os.path.dirname(badFile), exist_ok=True)
+	os.makedirs(os.path.dirname(newFile), exist_ok=True)
+
+	df = (
+		pl.scan_parquet(srcFile)
+		.with_columns(
+			[
+				pl.col('SSNumber').pipe(only_digits).pipe(only_length, length=9).alias('CleanSSN'),
+			]
+		)
+		.with_columns(
+			[
+				pl.col('CleanSSN').is_not_null().alias('is_valid'),
+			]
+		)
+		.collect(streaming=True)
+	)
+
+	good_df = df.filter(pl.col('is_valid')).drop('is_valid').rename({'CleanSSN': 'SSNumber'})
+	bad_df = df.filter(~pl.col('is_valid')).drop('is_valid')
 
 	if os.path.exists(outFile):
 		os.remove(outFile)
+	if os.path.exists(badFile):
+		os.remove(badFile)
 
-	if os.path.exists(srcFile):
-		print('')
-		print(f'Reading file:  {srcFile}')
-		lf = pl.scan_parquet(srcFile)
+	good_df.write_parquet(outFile)
+	bad_df.write_parquet(badFile)
+	shutil.copy(outFile, newFile)
 
-		print(f'Cleaning file: {srcFile}')
+# for srcFile in glob('D:\\OneLake\\src\\06\\Parts.parquet'):
+# 	outFile = srcFile.replace('src\\06', 'out\\06')
+# 	newFile = outFile.replace('out\\06', 'src\\07')
 
-		# Clean Columns
-		lf = lf.with_columns(
-			[
-				# pl.col('FName').str.strip_chars().str.to_titlecase(),
-				# pl.col('LName').str.strip_chars().str.to_titlecase(),
-				# pl.col('MName').str.strip_chars().str.to_titlecase(),
-				# pl.col('SName').str.strip_chars().str.to_uppercase(),
-				# pl.col('Address').str.strip_chars().str.to_uppercase(),
-				# pl.col('City').str.strip_chars().str.to_titlecase(),
-				# pl.col('County').str.strip_chars().str.to_titlecase(),
-				# pl.col('State').str.strip_chars().str.to_uppercase(),
-				# pl.col('Zipcode').pipe(only_digits).str.slice(0, 5).pipe(only_length, length=5),
-				# pl.col('Telephone').pipe(only_digits).pipe(only_length, length=10),
-				# pl.col('Alt1Name').str.strip_chars().str.to_titlecase(),
-				# pl.col('Alt2Name').str.strip_chars().str.to_titlecase(),
-				# pl.col('Alt3Name').str.strip_chars().str.to_titlecase(),
-				pl.col('SSNumber').pipe(only_digits).pipe(only_length, length=9),
-			]
-		).filter(
-			[
-				# pl.col('RowId').is_not_null(),
-				# pl.col('FName').is_not_null(),
-				# pl.col('LName').is_not_null(),
-				# pl.col('State').is_in(sAbbr),
-				# pl.col('Zipcode').is_not_null(),
-				pl.col('SSNumber').is_not_null(),
-			]
-		)
+# 	if os.path.exists(outFile):
+# 		os.remove(outFile)
 
-		print(f'Writing file: {outFile}')
-		# print(
-		# 	lf.explain(
-		# 		format='plain',
-		# 		optimized=True,
-		# 	)
-		# )
-		lf.sink_parquet(outFile)
+# 	if os.path.exists(srcFile):
+# 		print('')
+# 		print(f'Reading file:  {srcFile}')
+# 		lf = pl.scan_parquet(srcFile)
 
-	if os.path.exists(outFile):
-		shutil.copy(outFile, newFile)
+# 		print(f'Cleaning file: {srcFile}')
+
+# 		# Clean Columns
+# 		lf = lf.with_columns(
+# 			[
+# 				pl.col('SSNumber').pipe(only_digits).pipe(only_length, length=9),
+# 			]
+# 		).filter(
+# 			[
+# 				pl.col('SSNumber').is_not_null(),
+# 			]
+# 		)
+
+# 		print(f'Writing file: {outFile}')
+# 		lf.sink_parquet(outFile)
+
+# 	if os.path.exists(outFile):
+# 		shutil.copy(outFile, newFile)

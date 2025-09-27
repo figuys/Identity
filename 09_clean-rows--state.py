@@ -66,7 +66,6 @@ sAbbr = [
 ]
 
 
-# Remove non-digit characters
 def only_digits(expr: Expr) -> Expr:
 	return pl.when(expr.is_not_null()).then(expr.str.extract(r'\d+', 0)).otherwise(None)
 
