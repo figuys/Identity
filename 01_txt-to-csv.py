@@ -70,7 +70,7 @@ for srcFile in glob('D:\\GitHub\\fiGuys\\Identity\\src\\01\\Part*.txt'):
 	sFile = None
 	sSave = None
 
-	with open(srcFile, 'rt', errors='ignore', newline=None, encoding='utf-8') as readFile:
+	with open(srcFile, 'rt', errors='ignore', encoding='utf-8') as readFile:
 		for srcRow in csv.reader(readFile):
 			errFile = errFile.replace('.txt', f'_{pTick:03d}.csv')
 			outFile = outFile.replace('.txt', f'_{pTick:03d}.csv')
@@ -78,11 +78,11 @@ for srcFile in glob('D:\\GitHub\\fiGuys\\Identity\\src\\01\\Part*.txt'):
 			tmpFile = tmpFile.replace('.txt', f'_{pTick:03d}.csv')
 
 			if kFile is None:
-				kFile = open(tmpFile, 'wt', errors='ignore', newline=None, encoding='utf-8')
+				kFile = open(tmpFile, 'wt', errors='ignore', encoding='utf-8')
 			if kSave is None:
 				kSave = csv.writer(kFile)
 			if sFile is None:
-				sFile = open(errFile, 'wt', errors='ignore', newline=None, encoding='utf-8')
+				sFile = open(errFile, 'wt', errors='ignore', encoding='utf-8')
 			if sSave is None:
 				sSave = csv.writer(sFile)
 
