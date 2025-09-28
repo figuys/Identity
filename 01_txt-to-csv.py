@@ -30,10 +30,6 @@ headers = [
 	'SSNumber',
 ]
 
-lineHeader = ','.join(headers)
-lineHeader = f'{lineHeader}\n'
-
-
 def print_status(rTick: int, kTick: int, sTick: int) -> None:
 	if rTick % 1_000_000 == 0:
 		print(f'{"Read:":<6} {rTick:<13_} {"Kept:":<6} {kTick:<13_} {"Skip:":<6} {sTick:<13_}')
