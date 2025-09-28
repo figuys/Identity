@@ -2,6 +2,7 @@ import csv
 import os
 import re
 import shutil
+import unicodedata
 from glob import glob
 
 # Chunk variables
@@ -31,31 +32,35 @@ headers = [
 	'SSNumber',
 ]
 
+
 def print_status(rTick: int, kTick: int, sTick: int) -> None:
 	if rTick % 1_000_000 == 0:
 		print(f'{"Read:":<6} {rTick:<13_} {"Kept:":<6} {kTick:<13_} {"Skip:":<6} {sTick:<13_}')
 
-	def getAllowed() -> list[str]:
+	
+def getAllowed() -> list[str]:
 		global gAllowed
 
 		if 'gAllowed' not in globals():
 			gAllowed: list[str] = []
 
-		if len(gAllowed) == 0:
-			for codepoint in range(0x110000): 
-				cat = unicodedata.category(chr(codepoint))
-				if cat[0] in 'LNP' or cat[0] == 'S' or cat == 'Zs':
-					gAllowed.append(chr(codepoint))
+	if len(gAllowed) == 0:
+		for codepoint in range(0x110000):
+			cat = unicodedata.category(chr(codepoint))
+			if cat[0] in 'LNP' or cat[0] == 'S' or cat == 'Zs':
+				gAllowed.append(chr(codepoint))
 
 		return gAllowed
 
-	def getPattern() -> re.Pattern[str]:
+	
+def getPattern() -> re.Pattern[str]:
 		global gPattern
 
 		if 'gPattern' not in globals():
 			gPattern = re.compile(f'[^{re.escape("".join(getAllowed()))}]')
-			
+	
 		return gPattern
+
 
 def clean_line(line: str) -> str:
 	# if PATTERN is None:
@@ -98,11 +103,11 @@ for srcFile in glob('D:\\GitHub\\fiGuys\\Identity\\src\\01\\Part*.txt'):
 			tmpFile = tmpFile.replace('.txt', f'_{pTick:03d}.csv')
 
 			if kFile is None:
-				kFile = open(tmpFile, 'wt', errors='ignore', encoding='utf-8')
+				kFile = open(tmpFile, 'wt', errors='ignore', encoding='utf-8', newline='')
 			if kSave is None:
 				kSave = csv.writer(kFile)
 			if sFile is None:
-				sFile = open(errFile, 'wt', errors='ignore', encoding='utf-8')
+				sFile = open(errFile, 'wt', errors='ignore', encoding='utf-8', newline='')
 			if sSave is None:
 				sSave = csv.writer(sFile)
 
