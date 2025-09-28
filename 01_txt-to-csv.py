@@ -37,40 +37,31 @@ def print_status(rTick: int, kTick: int, sTick: int) -> None:
 	if rTick % 1_000_000 == 0:
 		print(f'{"Read:":<6} {rTick:<13_} {"Kept:":<6} {kTick:<13_} {"Skip:":<6} {sTick:<13_}')
 
-	
 def getAllowed() -> list[str]:
-		global gAllowed
+	global gAllowed
 
-		if 'gAllowed' not in globals():
-			gAllowed: list[str] = []
+	if 'gAllowed' not in globals():
+		gAllowed: list[str] = []
 
 	if len(gAllowed) == 0:
-		for codepoint in range(0x110000):
+		for codepoint in range(0x110000): 
 			cat = unicodedata.category(chr(codepoint))
 			if cat[0] in 'LNP' or cat[0] == 'S' or cat == 'Zs':
 				gAllowed.append(chr(codepoint))
 
-		return gAllowed
+	return gAllowed
 
-	
 def getPattern() -> re.Pattern[str]:
-		global gPattern
+	global gPattern
 
-		if 'gPattern' not in globals():
-			gPattern = re.compile(f'[^{re.escape("".join(getAllowed()))}]')
-	
-		return gPattern
+	if 'gPattern' not in globals():
+		gPattern = re.compile(f'[^{re.escape("".join(getAllowed()))}]')
+		
+	return gPattern
 
 
 def clean_line(line: str) -> str:
-	# if PATTERN is None:
-	#	PATTERN = re.compile(f'[^{re.escape("".join(ALLOWED))}]')
-	# lineN = unicodedata.normalize('NFC', line)
-	# lineC = regex.sub(r'[^\p{L}\p{N}\p{Z}\p{P}\p{S}]', '', lineN)
-	# lineR = regex.sub(r'\s+', ' ', lineC).strip()
-	result = line.strip()
-
-	return result
+	return getPattern().sub('', line)
 
 
 for srcFile in glob('D:\\GitHub\\fiGuys\\Identity\\src\\01\\Part*.txt'):
