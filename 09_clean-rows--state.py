@@ -66,7 +66,6 @@ sAbbr = [
 ]
 
 
-# Remove non-digit characters
 def only_digits(expr: Expr) -> Expr:
 	return pl.when(expr.is_not_null()).then(expr.str.extract(r'\d+', 0)).otherwise(None)
 
@@ -75,7 +74,7 @@ def only_length(expr: Expr, *, length: int) -> Expr:
 	return pl.when(expr.str.len_chars() == length).then(expr).otherwise(None)
 
 
-for srcFile in glob('D:\\OneLake\\src\\09\\Parts.parquet'):
+for srcFile in glob('D:\\GitHub\\fiGuys\\Identity\\src\\09\\Parts.parquet'):
 	outFile = srcFile.replace('src\\09', 'out\\09')
 	newFile = outFile.replace('out\\09', 'src\\10')
 
