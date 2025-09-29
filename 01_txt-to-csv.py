@@ -5,6 +5,9 @@ import shutil
 import unicodedata
 from glob import glob
 
+gAllowed: list[str]
+gPattern: re.Pattern[str]
+
 # Chunk variables
 cSize = 10_000_000
 
@@ -37,26 +40,28 @@ def print_status(rTick: int, kTick: int, sTick: int) -> None:
 	if rTick % 1_000_000 == 0:
 		print(f'{"Read:":<6} {rTick:<13_} {"Kept:":<6} {kTick:<13_} {"Skip:":<6} {sTick:<13_}')
 
+
 def getAllowed() -> list[str]:
 	global gAllowed
 
 	if 'gAllowed' not in globals():
-		gAllowed: list[str] = []
+		gAllowed = []
 
 	if len(gAllowed) == 0:
-		for codepoint in range(0x110000): 
+		for codepoint in range(0x110000):
 			cat = unicodedata.category(chr(codepoint))
 			if cat[0] in 'LNP' or cat[0] == 'S' or cat == 'Zs':
 				gAllowed.append(chr(codepoint))
 
 	return gAllowed
 
+
 def getPattern() -> re.Pattern[str]:
 	global gPattern
 
 	if 'gPattern' not in globals():
 		gPattern = re.compile(f'[^{re.escape("".join(getAllowed()))}]')
-		
+
 	return gPattern
 
 
@@ -86,8 +91,9 @@ for srcFile in glob('D:\\GitHub\\fiGuys\\Identity\\src\\01\\Part*.txt'):
 	sFile = None
 	sSave = None
 
-	with open(srcFile, 'rt', errors='ignore', encoding='utf-8') as readFile:
-		for srcRow in csv.reader(readFile):
+	with open(srcFile, 'rt', errors='ignore', encoding='utf-8', newline='') as readFile:
+		srcReader = csv.reader(readFile)
+		for srcLine in srcReader:
 			errFile = errFile.replace('.txt', f'_{pTick:03d}.csv')
 			outFile = outFile.replace('.txt', f'_{pTick:03d}.csv')
 			newFile = newFile.replace('.txt', f'_{pTick:03d}.csv')
@@ -102,7 +108,7 @@ for srcFile in glob('D:\\GitHub\\fiGuys\\Identity\\src\\01\\Part*.txt'):
 			if sSave is None:
 				sSave = csv.writer(sFile)
 
-			if not srcRow:
+			if not srcLine:
 				continue
 
 			rTick += 1
@@ -112,13 +118,13 @@ for srcFile in glob('D:\\GitHub\\fiGuys\\Identity\\src\\01\\Part*.txt'):
 				kTick += 1
 				cTick += 1
 				print_status(rTick, kTick, sTick)
-			elif len(srcRow) == 20:
-				kSave.writerow(srcRow)
+			elif len(srcLine) == 20:
+				kSave.writerow(srcLine)
 				kTick += 1
 				cTick += 1
 				print_status(rTick, kTick, sTick)
 			else:
-				sSave.writerow(srcRow)
+				sSave.writerow(srcLine)
 				sTick += 1
 				cTick += 1
 				print_status(rTick, kTick, sTick)
