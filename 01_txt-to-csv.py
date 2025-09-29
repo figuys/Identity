@@ -148,5 +148,6 @@ for srcFile in glob('D:\\GitHub\\fiGuys\\Identity\\src\\01\\Part*.txt'):
 				cTick = 1
 
 				print_status(rTick, kTick, sTick)
+				
 
 	print_status(rTick, kTick, sTick)
