@@ -48,11 +48,7 @@ def print_status(counts: dict[str, int]) -> None:
 
 	# Print every 1,000,000 rows; otherwise do nothing
 	return (
-		None
-		if rTick % 1_000_000
-		else print(
-			f'{"Read:":<6} {rTick:<13_} {"Kept:":<6} {kTick:<13_} {"Sub:":<5} {sTick:<8_} {"Add:":<5} {aTick:<8_}'
-		)
+		None if rTick % 1_000_000 else print(f'{"Read:":<6} {rTick:<13_} {"Kept:":<6} {kTick:<13_} {"Sub:":<5} {sTick:<8_} {"Add:":<5} {aTick:<8_}')
 	)
 
 
