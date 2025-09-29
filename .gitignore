@@ -1,53 +1,11 @@
-## Identity Project Specific Ignore Rules
-src/
-out/
-err/
-tmp/
 
-## === Visual Studio / .NET ===
-.vs/
-*.user
-*.suo
-*.userosscache
-*.sln.docstates
-*.ide
+.vs
+src
+out
+err
+tmp
 
-# Build results
-[Bb]in/
-[Oo]bj/
-[Ll]og/
-[Tt]emp/
-[Dd]ebug*/
-[Rr]elease*/
-x64/
-x86/
-[Aa][Rr][Mm]*/
-[Aa][Rr][Mm]64/
-[Bb]uild/
-*.dbmdl
-*.bak
-*.ldf
-*.mdf
-
-# NuGet
-*.nupkg
-*.snupkg
-.nuget/
-packages/
-project.lock.json
-project.fragment.lock.json
-
-# Publish
-publish/
-*.Publish.xml
-*.pubxml
-*.publishproj
-
-# Azure
-*.azurePubxml
-Generated_Code/
-
-## === Python ===
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.pyc
 *.pyo
@@ -66,53 +24,52 @@ Pipfile.lock
 .poetry/
 .pytest_cache/
 .mypy_cache/
-.coverage
-htmlcov/
-*.log
+.dmypy.json
+dmypy.json
 
-## === JavaScript / TypeScript ===
-node_modules/
-jspm_packages/
-bower_components/
-dist/
-build/
-coverage/
-.nyc_output/
-.eslintcache
-*.tsbuildinfo
+# Pyre type checker
+.pyre/
 
-# Next.js / React / Angular caches
-.next/
-.nuxt/
-out/
-.angular/
-.vite/
+# pytype static type analyzer
+.pytype/
 
-## === SQL Server ===
-*.mdf
-*.ldf
-*.ndf
-*.bak
-*.trn
+# Cython debug symbols
+cython_debug/
 
-## === OS / IDE Misc ===
-.DS_Store
-Thumbs.db
-ehthumbs.db
-Desktop.ini
+# PyCharm
+#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
+#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+#  and can be added to the global gitignore or merged into this file.  For a more nuclear
+#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
+#.idea/
 
-# Windows Installer files
-*.cab
-*.msi
-*.msm
-*.msp
+# Abstra
+# Abstra is an AI-powered process automation framework.
+# Ignore directories containing user credentials, local state, and settings.
+# Learn more at https://abstra.io/docs
+.abstra/
 
-# Logs
-*.log
-*.tlog
-*.err
-*.wrn
+# Visual Studio Code
+#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
+#  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
+#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
+#  you could uncomment the following to ignore the entire vscode folder
+# .vscode/
 
-# VS Code
-.vscode/
-.history/
+# Ruff stuff:
+.ruff_cache/
+
+# PyPI configuration file
+.pypirc
+
+# Cursor
+#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
+#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
+#  refer to https://docs.cursor.com/context/ignore-files
+.cursorignore
+.cursorindexingignore
+
+# Marimo
+marimo/_static/
+marimo/_lsp/
+__marimo__/
