@@ -56,7 +56,7 @@ def apply_type_casting(lf: LazyFrame) -> LazyFrame:
 			pl.when(pl.col(col_name).str.len_chars() >= 4).then(pl.col(col_name).str.slice(0, 4).cast(UInt16, strict=False)).alias(f'{col_name}_Y')
 		)
 		new_date_cols.append(
-			pl.when(pl.col(col_name).str.len_chars() >= 6).then(pl.col(col_name).str.slice(4, 2).cast(UInt8, strict=False)).alias(f'{col_name}_M') # type: ignore
+			pl.when(pl.col(col_name).str.len_chars() >= 6).then(pl.col(col_name).str.slice(4, 2).cast(UInt8, strict=False)).alias(f'{col_name}_M')  # type: ignore
 		)
 		new_date_cols.append(
 			pl.when(pl.col(col_name).str.len_chars() == 8).then(pl.col(col_name).str.slice(6, 2).cast(UInt8, strict=False)).alias(f'{col_name}_D')
@@ -68,7 +68,7 @@ def apply_type_casting(lf: LazyFrame) -> LazyFrame:
 
 def main():
 	"""Main processing loop for step 02."""
-	for src_file in glob('D:\\GitHub\\fiGuys\\Identity\\src\\02\\Part*.parquet'):
+	for src_file in glob('D:\\GitHub\\fiGuys\\Identity\\02\\src\\Part*.parquet'):
 		process_file(src_file, apply_type_casting)
 
 

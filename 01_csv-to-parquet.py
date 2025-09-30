@@ -17,7 +17,7 @@ def convert_to_parquet(lf: pl.LazyFrame) -> pl.LazyFrame:
 
 def main():
 	"""Main processing loop for step 01."""
-	for src_file in glob(r'D:\GitHub\fiGuys\Identity\src\01\Part*.csv'):
+	for src_file in glob(r'D:\GitHub\fiGuys\Identity\01\src\Part*.csv'):
 		process_file(src_file, convert_to_parquet, source_reader=pl.scan_csv)
 
 
