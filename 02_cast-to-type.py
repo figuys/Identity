@@ -1,39 +1,14 @@
 import os
-import re
-import shutil
-import polars as pl
-
-from polars import LazyFrame
-from polars import String, UInt32, Date, Boolean
-
+import sys
 from enum import Enum
 from glob import glob
 
-dList = ['01', '02', '03', '04', '05', '06', '07', '08', '09'] + [str(i) for i in range(10, 32)]
-mList = ['01', '02', '03', '04', '05', '06', '07', '08', '09'] + [str(i) for i in range(10, 13)]
+import polars as pl
+from polars import Expr, LazyFrame, UInt8, UInt16, UInt32
 
-schemaIn = [
-	'RowId',
-	'FName',
-	'LName',
-	'MName',
-	'SName',
-	'BDate',
-	'Address',
-	'City',
-	'County',
-	'State',
-	'Zipcode',
-	'Telephone',
-	'Alt1Name',
-	'Alt2Name',
-	'Alt3Name',
-	'StartDay',
-	'Alt1Dob',
-	'Alt2Dob',
-	'Alt3Dob',
-	'SSNumber',
-]
+# Add the 'lib' directory to the system path to import PathManager
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'lib')))
+from pipeline_utils import process_file
 
 
 class StrCasing(Enum):
@@ -44,110 +19,58 @@ class StrCasing(Enum):
 
 
 # Helper functions for normalization
-def clean_string(value: String) -> String:
-	if value is None:
-		return None
-	value = value.strip()
-	# Collapse multiple spaces
-	value = re.sub(r'\s+', ' ', value)
-	return value
+def strip_chars(expr: Expr) -> Expr:
+	"""Expression to strip leading/trailing whitespace from a string column."""
+	return expr.str.strip_chars()
 
 
-def convert_ToDate(date: String) -> String:
-	y = date[:4]
-	m = date[4:6]
-	d = date[6:8]
-
-	if m not in mList:
-		m = '01'
-
-	if d not in dList:
-		d = '01'
-
-	return f'{y}-{m}-{d}'
+def collapse_whitespace(expr: Expr) -> Expr:
+	"""Expression to replace multiple whitespace characters with a single space."""
+	return expr.str.replace_all(r'\s+', ' ')
 
 
-def castTo_UInt32(lf: LazyFrame, name: String, required: Boolean) -> LazyFrame:
-	print(f'   # Change column type to UInt32 for column: {name}, required {required}')
-	if required:
-		lf = lf.filter(pl.col(name).is_not_null())
+def apply_type_casting(lf: LazyFrame) -> LazyFrame:
+	"""Applies all type casting and string normalization for step 02."""
+	# Correct RowId
+	print('   # Change column type to UInt32 for column: RowId, required True')
+	lf = lf.filter(pl.col('RowId').is_not_null()).with_columns(pl.col('RowId').cast(UInt32, strict=True))
 
-	lf = lf.with_columns(pl.col(name).cast(UInt32, strict=required).alias(name))
+	# Correct String columns
+	print('   # Change column types to String and apply transformations')
+	lf = lf.filter(pl.col('SSNumber').is_not_null()).with_columns(
+		pl.col(pl.Utf8).pipe(strip_chars).pipe(collapse_whitespace),
+		pl.col(['FName', 'LName', 'MName', 'Alt1Name', 'Alt2Name', 'Alt3Name', 'City', 'County']).str.to_titlecase(),
+		pl.col(['SName', 'Address', 'State']).str.to_uppercase(),
+	)
 
+	# Correct Dates
+	print('   # Change column types to Date')
+	date_cols = ['BDate', 'Alt1Dob', 'Alt2Dob', 'Alt3Dob', 'StartDay']  # Original date columns
+	new_date_cols = []  # To hold all new expressions
+
+	for col_name in date_cols:
+		# 1. Parse the full date, turning invalid/incomplete dates into null
+		new_date_cols.append(pl.col(col_name).str.pad_end(8, '0').str.to_date('%Y%m%d', strict=False, exact=True).alias(col_name))
+		# 2. Extract Year, Month, and Day parts into new columns
+		new_date_cols.append(
+			pl.when(pl.col(col_name).str.len_chars() >= 4).then(pl.col(col_name).str.slice(0, 4).cast(UInt16, strict=False)).alias(f'{col_name}_Y')
+		)
+		new_date_cols.append(
+			pl.when(pl.col(col_name).str.len_chars() >= 6).then(pl.col(col_name).str.slice(4, 2).cast(UInt8, strict=False)).alias(f'{col_name}_M') # type: ignore
+		)
+		new_date_cols.append(
+			pl.when(pl.col(col_name).str.len_chars() == 8).then(pl.col(col_name).str.slice(6, 2).cast(UInt8, strict=False)).alias(f'{col_name}_D')
+		)
+
+	lf = lf.with_columns(new_date_cols)
 	return lf
 
 
-def castTo_String(lf: LazyFrame, name: String, required: Boolean, casing: StrCasing) -> LazyFrame:
-	print(f'   # Change column type to String for column: {name}, required {required}')
-	if required:
-		lf = lf.filter(pl.col(name).is_not_null())
-
-	lf = lf.with_columns(pl.col(name).cast(String, strict=required).alias(name))
-	lf = lf.with_columns(pl.col(name).str.strip_chars().alias(name))
-
-	if casing.value == 2:
-		lf = lf.with_columns(pl.col(name).str.to_lowercase().alias(name))
-
-	if casing.value == 3:
-		lf = lf.with_columns(pl.col(name).str.to_uppercase().alias(name))
-
-	if casing.value == 4:
-		lf = lf.with_columns(pl.col(name).str.to_titlecase().alias(name))
-
-	return lf
+def main():
+	"""Main processing loop for step 02."""
+	for src_file in glob('D:\\GitHub\\fiGuys\\Identity\\src\\02\\Part*.parquet'):
+		process_file(src_file, apply_type_casting)
 
 
-def castTo_Date(lf: LazyFrame, name: String, required: Boolean) -> LazyFrame:
-	print(f'   # Change column type to Date for column: {name}, required {required}')
-	if required:
-		lf = lf.filter(pl.col(name).is_not_null())
-
-	lf = lf.with_columns(pl.col(name).map_elements(convert_ToDate, return_dtype=String).alias(name))
-	lf = lf.with_columns(pl.col(name).cast(Date, strict=required).alias(name))
-
-	return lf
-
-
-for srcFile in glob('D:\\GitHub\\fiGuys\\Identity\\src\\02\\Part*.parquet'):
-	outFile = srcFile.replace('src\\02', 'out\\02')
-	newFile = outFile.replace('out\\02', 'src\\03')
-
-	if os.path.exists(outFile) and os.path.exists(srcFile):
-		os.remove(outFile)
-
-	if os.path.exists(srcFile):
-		print('')
-		print(f'Reading file:  {srcFile}')
-		lf = pl.scan_parquet(srcFile)
-
-		print(f'Cleaning file: {srcFile}')
-
-		# Correct RowId
-		lf = castTo_UInt32(lf, 'RowId', True)
-		# Correct Names
-		lf = castTo_String(lf, 'FName', False, StrCasing.Title)
-		lf = castTo_String(lf, 'LName', False, StrCasing.Title)
-		lf = castTo_String(lf, 'MName', False, StrCasing.Title)
-		lf = castTo_String(lf, 'SName', False, StrCasing.Upper)
-		lf = castTo_String(lf, 'Alt1Name', False, StrCasing.Title)
-		lf = castTo_String(lf, 'Alt2Name', False, StrCasing.Title)
-		lf = castTo_String(lf, 'Alt3Name', False, StrCasing.Title)
-		# Correct Address
-		lf = castTo_String(lf, 'Address', False, StrCasing.Upper)
-		lf = castTo_String(lf, 'City', False, StrCasing.Title)
-		lf = castTo_String(lf, 'County', False, StrCasing.Title)
-		lf = castTo_String(lf, 'State', False, StrCasing.Upper)
-		# Correct SSN
-		lf = castTo_String(lf, 'SSNumber', True, StrCasing.Ignore)
-		# Correct Dates
-		lf = castTo_Date(lf, 'BDate', False)
-		lf = castTo_Date(lf, 'StartDay', False)
-		lf = castTo_Date(lf, 'Alt1Dob', False)
-		lf = castTo_Date(lf, 'Alt2Dob', False)
-		lf = castTo_Date(lf, 'Alt3Dob', False)
-
-		print(f'Writing file: {outFile}')
-		lf.sink_parquet(outFile)
-
-	if os.path.exists(outFile):
-		shutil.copy(outFile, newFile)
+if __name__ == '__main__':
+	main()
