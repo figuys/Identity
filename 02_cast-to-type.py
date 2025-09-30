@@ -31,16 +31,30 @@ def collapse_whitespace(expr: Expr) -> Expr:
 
 def apply_type_casting(lf: LazyFrame) -> LazyFrame:
 	"""Applies all type casting and string normalization for step 02."""
+
+	####################
+	## Bug Fix - Hack ##
+	####################
+	lf = lf.with_columns(pl.col('SSNumber\r').alias('SSNumber')).drop('SSNumber\r')
+
 	# Correct RowId
 	print('   # Change column type to UInt32 for column: RowId, required True')
 	lf = lf.filter(pl.col('RowId').is_not_null()).with_columns(pl.col('RowId').cast(UInt32, strict=True))
 
 	# Correct String columns
 	print('   # Change column types to String and apply transformations')
-	lf = lf.filter(pl.col('SSNumber').is_not_null()).with_columns(
-		pl.col(pl.Utf8).pipe(strip_chars).pipe(collapse_whitespace),
-		pl.col(['FName', 'LName', 'MName', 'Alt1Name', 'Alt2Name', 'Alt3Name', 'City', 'County']).str.to_titlecase(),
-		pl.col(['SName', 'Address', 'State']).str.to_uppercase(),
+	lf = lf.filter(pl.col('SSNumber').is_not_null()).with_columns(  # type: ignore
+		# For columns needing title casing, apply cleaning then casing.
+		pl.col(['FName', 'LName', 'MName', 'Alt1Name', 'Alt2Name', 'Alt3Name', 'City', 'County'])
+		.pipe(strip_chars)
+		.pipe(collapse_whitespace)
+		.str.to_titlecase(),
+		# For columns needing upper casing, apply cleaning then casing.
+		pl.col(['SName', 'Address', 'State']).pipe(strip_chars).pipe(collapse_whitespace).str.to_uppercase(),
+		# For other string columns (like SSNumber), just apply cleaning.
+		pl.col('SSNumber').pipe(strip_chars).pipe(collapse_whitespace),
+		# Note: This assumes all string columns fall into one of these groups.
+		# If other string columns exist that need cleaning, they must be specified.
 	)
 
 	# Correct Dates
